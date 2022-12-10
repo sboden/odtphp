@@ -403,6 +403,7 @@ IMG;
             $replace . "\n" . $manifdata, $this->manifestXml);
         }
         else {
+          // This branch is a fail-safe but normally should not be used.
           $this->manifestXml = substr_replace($this->manifestXml, "\n".$manifdata, $lastpos+1, 0);
         }
 
