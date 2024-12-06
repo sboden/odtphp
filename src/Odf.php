@@ -141,7 +141,7 @@ class Odf
             throw new OdfException("var $key not found in the document");
         }
         $value = $encode ? $this->recursiveHtmlspecialchars($value) : $value;
-        $value = ($charset == 'ISO-8859') ? utf8_encode($value) : $value;
+        $value = ($charset == 'ISO-8859') ? mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1') : $value;
         $this->vars[$tag] = str_replace("\n", "<text:line-break/>", $value);
         return $this;
     }
