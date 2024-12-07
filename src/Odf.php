@@ -188,7 +188,7 @@ class Odf
     public function variableExists($key)
     {
       $tag = $this->config['DELIMITER_LEFT'] . $key . $this->config['DELIMITER_RIGHT'];
-      return strpos($this->contentXml, $tag) === true || strpos($this->stylesXml, $tag) === true;
+      return strpos($this->contentXml, $tag) !== false || strpos($this->stylesXml, $tag) !== false;
     }
 
     /**
