@@ -22,24 +22,24 @@ class Basic2Test extends OdtTestCase {
       $type_name = 'PclZip';
     }
 
-    $odf = new Odf("files/input/BasicTest2.odt", $config);
+    $input_file = __DIR__ . '/files/input/BasicTest2.odt';
+    $odf = new Odf($input_file, $config);
 
+    $odf->setVars('titre', 'PHP: Hypertext Preprocessor');
 
-    $odf->setVars('titre','Anaska formation');
-    $message = "Anaska, leader Fran�ais de la formation informatique sur les technologies 
-Open Source, propose un catalogue de plus de 50 formations dont certaines pr�parent 
-aux certifications Linux, MySQL, PHP et PostgreSQL.";
+    $message = "PHP (sigle de PHP: Hypertext Preprocessor), est un langage de scripts libre 
+principalement utilisé pour produire des pages Web dynamiques via un serveur HTTP, mais 
+pouvant également fonctionner comme n'importe quel langage interprété de façon locale, 
+en exécutant les programmes en ligne de commande.";
 
-    $odf->setVars('message', $message, TRUE, 'UTF8');
+    $odf->setVars('message', $message, TRUE, 'UTF-8');
 
-    $odf->setImage('image', 'files/images/anaska.jpg');
+    $odf->setImage('image', __DIR__ . '/files/images/anaska.jpg');
 
-    $output_name = "files/output/BasicTest2" . $type_name . "Output.odt";
-    // We export the file
+    $output_name = __DIR__ . "/files/output/BasicTest2" . $type_name . "Output.odt";
     $odf->saveToDisk($output_name);
 
-    //print("\nComparing files:\n  $output_name\n  files/$gold_dir/BasicTest2Gold.odt\n");
-    $this->assertTrue($this->odtFilesAreIdentical($output_name, "files/$gold_dir/BasicTest2Gold.odt"));
+    $this->assertTrue($this->odtFilesAreIdentical($output_name, __DIR__ . "/files/$gold_dir/BasicTest2Gold.odt"));
 
     unlink($output_name);
   }
@@ -51,5 +51,4 @@ aux certifications Linux, MySQL, PHP et PostgreSQL.";
   public function testBasicPhpZip2(): void {
     $this->basic2(self::PHPZIP_TYPE);
   }
-
 }

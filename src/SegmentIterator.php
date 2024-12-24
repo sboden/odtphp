@@ -1,65 +1,73 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Odtphp;
 
 /**
- * Segments iterator
- * You need PHP 5.2 at least
- * You need Zip Extension or PclZip library
- * Encoding : ISO-8859-1
- * Last commit by $Author: neveldo $
- * Date - $Date: 2009-06-17 11:11:57 +0200 (mer., 17 juin 2009) $
- * SVN Revision - $Rev: 42 $
- * Id : $Id: SegmentIterator.php 42 2009-06-17 09:11:57Z neveldo $
+ * Iterator for ODT document segments.
  *
- * @copyright  GPL License 2008 - Julien Pauli - Cyril PIERRE de GEYER - Anaska (http://www.anaska.com)
- * @license    http://www.gnu.org/copyleft/gpl.html  GPL License
- * @version 1.3
+ * Provides iteration functionality over document segments
+ * implementing both Iterator and Countable interfaces.
+ *
+ * @implements \Iterator<int, Segment>
  */
-class SegmentIterator implements \RecursiveIterator
-{
-    private $ref;
-    private $key;
+class SegmentIterator implements \Iterator, \Countable {
+  /**
+   * Current position in the iterator.
+   */
+  private int $position = 0;
 
-    public function __construct(array $ref)
-    {
-        $this->ref = $ref;
-        $this->key = 0;
-        $this->keys = array_keys($this->ref);
-    }
+  /**
+   * Initialize segment iterator.
+   *
+   * @param array<int, Segment> $segments
+   *   Array of segments to iterate over.
+   */
+  public function __construct(
+    private readonly array $segments,
+  ) {}
 
-    public function hasChildren()
-    {
-        return $this->valid() && $this->current() instanceof Segment;
-    }
+  /**
+   * Reset iterator position.
+   */
+  public function rewind(): void {
+    $this->position = 0;
+  }
 
-    public function current()
-    {
-        return $this->ref[$this->keys[$this->key]];
-    }
+  /**
+   * Get current segment.
+   */
+  public function current(): Segment {
+    return $this->segments[$this->position];
+  }
 
-    public function getChildren()
-    {
-        return new self($this->current()->children);
-    }
+  /**
+   * Get current position.
+   */
+  public function key(): int {
+    return $this->position;
+  }
 
-    public function key()
-    {
-        return $this->key;
-    }
+  /**
+   * Move to next segment.
+   */
+  public function next(): void {
+    ++$this->position;
+  }
 
-    public function valid()
-    {
-        return array_key_exists($this->key, $this->keys);
-    }
+  /**
+   * Check if current position is valid.
+   */
+  public function valid(): bool {
+    return isset($this->segments[$this->position]);
+  }
 
-    public function rewind()
-    {
-        $this->key = 0;
-    }
+  /**
+   * Get total number of segments.
+   */
+  public function count(): int {
+    return count($this->segments);
+  }
 
-    public function next()
-    {
-        $this->key ++;
-    }
 }

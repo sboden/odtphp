@@ -25,7 +25,7 @@ class OdtTestCase extends TestCase {
 
   protected function odfPclZipConfig() {
     return [
-      'ZIP_PROXY' => \Odtphp\Zip\PhpZipProxy::class,
+      'ZIP_PROXY' => \Odtphp\Zip\PclZipProxy::class,
       'DELIMITER_LEFT' => '{',
       'DELIMITER_RIGHT' => '}',
     ];
@@ -65,8 +65,12 @@ class OdtTestCase extends TestCase {
   function odtFilesAreIdentical($file1, $file2)
   {
     // Ensure both files exist
-    if (!file_exists($file1) || !file_exists($file2)) {
-        throw new Exception("One or both files do not exist.");
+    if (!file_exists($file1)) {
+        throw new Exception("File $file1 does not exist.");
+    }
+
+    if (!file_exists($file2)) {
+      throw new Exception("File $file2 does not exist.");
     }
 
     // Open the first .odt file as a ZIP archive and extract content.xml

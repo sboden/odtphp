@@ -22,7 +22,8 @@ class Basic1Test extends OdtTestCase {
       $type_name = 'PclZip';
     }
 
-    $odf = new Odf("files/input/BasicTest1.odt", $config);
+    $input_file = __DIR__ . '/files/input/BasicTest1.odt';
+    $odf = new Odf($input_file, $config);
 
     $odf->setVars('titre',
       'PHP: Hypertext Preprocessor');
@@ -32,14 +33,14 @@ principalement utilisé pour produire des pages Web dynamiques via un serveur HT
 pouvant également fonctionner comme n'importe quel langage interprété de façon locale, 
 en exécutant les programmes en ligne de commande.";
 
-    $odf->setVars('message', $message, TRUE, 'UTF8');
+    $odf->setVars('message', $message, TRUE, 'UTF-8');
 
-    $output_name = "files/output/BasicTest1" . $type_name . "Output.odt";
+    $output_name = __DIR__ . "/files/output/BasicTest1" . $type_name . "Output.odt";
     // We export the file
     $odf->saveToDisk($output_name);
 
     // print("\nComparing files:\n  $output_name\n  files/$gold_dir/BasicTest1Gold.odt\n");
-    $this->assertTrue($this->odtFilesAreIdentical($output_name, "files/$gold_dir/BasicTest1Gold.odt"));
+    $this->assertTrue($this->odtFilesAreIdentical($output_name, __DIR__ . "/files/$gold_dir/BasicTest1Gold.odt"));
 
     unlink($output_name);
   }

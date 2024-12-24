@@ -2,7 +2,7 @@
 /**
  * Simple Check file : checking your system about php-zip module
  * The output file checkresult.odt must be readable by an oasis document application as openoffice.org
- * You need PHP 5.2 at least
+ * You need PHP 8.1 at least
  * You need Zip Xml Extensions (or PclZip library instead if Zip extension)
  * Encoding : ISO-8859-1
  *
@@ -90,23 +90,21 @@
 
 	if (! $file->addFromString('content.xml', $odt_content->saveXML()) )
 	{
-		 @unlink($tmpfile); // erase temporary file
-	    throw new OdfException('Error during file export');
+		 @unlink($tmpfile);  // Erase temporary file.
+	   throw new OdfException('Error during file export');
 	}
         
-	// close the temporary zipfile
+	// Close the temporary zipfile.
 
 	$file->close();
 
-	// send the new checkresult.odt file via http :
+	// Send the new checkresult.odt file via http:
 
 	$name = "checkresult.odt";
 	$size = filesize($tmpfile);
 	header('Content-type: application/vnd.oasis.opendocument.text');
-	header('Content-Disposition: attachment; filename="'.$name.'"');
-	header("Content-Length: ".$size); 
-	readfile($tmpfile); // output
-	@unlink($tmpfile); // erase temporary file
-	exit; // be sure nothing else is write after
-
-?>
+	header('Content-Disposition: attachment; filename="' . $name . '"');
+	header("Content-Length: " . $size);
+	readfile($tmpfile); // Output.
+	@unlink($tmpfile); // Erase temporary file.
+	exit; // Be sure nothing else is write after.
