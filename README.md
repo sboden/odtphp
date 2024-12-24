@@ -14,7 +14,7 @@ A PHP library for creating and manipulating ODT (OpenDocument Text) files.
 Install via Composer:
 
 ```bash
-composer require sboden/odtphp:^2
+composer require sboden/odtphp:^3
 ```
 
 ## Basic Usage
@@ -292,10 +292,11 @@ makes sense to me.
 I always recommend using UTF-8 internally within the application and 
 handling encoding/decoding at the boundaries.
 
-#### How do I upgrade from v1 to v2?
+#### How do I upgrade from v1/v2 to v3?
 
 While it is a breaking change, as long as you only use `odtphp` and don't use
-any of its internals you should be fine by just upgrading the odtphp library.
+any of its internals you should be fine by just upgrading the odtphp library 
+to v3.
 
 If you inherit from Odf or you use some internal things in the odtphp library,
 then all bets are off.
@@ -322,7 +323,7 @@ PHP 8.2 moving to PHP 8.3, and some pieces of the original odtphp library
 are starting to spew warnings. During my 2024 Christmas holidays I was 
 writing some unit test cases for odtphp, and while testing the AI tool 
 "Windsurf", I tried to have Windsurf automatically update odtphp to a newer 
-PHP version, and sboden/odtphp v2 is the result of that (after some extra 
+PHP version, and sboden/odtphp v3 is the result of that (after some extra 
 manual human changes).
 
 While this fork `sboden/odtphp` is not officially supported, maintenance 
