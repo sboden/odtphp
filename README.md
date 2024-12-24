@@ -111,7 +111,8 @@ php.exe vendor/bin/phpunit --configuration=phpunit.xml
 You can also run the PHPUnit tests e.g. in PHPStorm, but you have to exclude 
 the vendor directory to avoid warnings about the PHPUnit framework itself.
 
-3. Linting:
+
+### Linting
 
 On Linux:
 ```bash
