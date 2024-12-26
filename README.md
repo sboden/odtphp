@@ -233,7 +233,7 @@ container than the main applications.
 The reason for using gotenberg over jodconverter is that gotenberg is better
 supported. And jodconverter was initially not able to handle large volumes since
 the most commonly used Docker container did not clean up after itself, so I had to 
-builid this in myself.
+build this in myself.
 
 Why not generate PDFs directly from PHP? We tried, but it's difficult to 
 have nice-looking PDFs using the existing PHP libraries. One PHP library has 
