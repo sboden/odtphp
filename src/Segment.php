@@ -252,7 +252,7 @@ class Segment implements \IteratorAggregate, \Countable {
    * @return $this
    *   The current segment instance.
    */
-  public function setImage($key, $value, $page = NULL, $width = NULL, $height = NULL, $offsetX = NULL, $offsetY = NULL): self {
+  public function setImage($key, $value, $page = -1, $width = NULL, $height = NULL, $offsetX = NULL, $offsetY = NULL): self {
     $filename = strtok(strrchr($value, '/'), '/.');
     $file = substr(strrchr($value, '/'), 1);
     $size = @getimagesize($value);
@@ -264,7 +264,7 @@ class Segment implements \IteratorAggregate, \Countable {
       $width *= $this->odf->getPixelToCm();
       $height *= $this->odf->getPixelToCm();
     }
-    $anchor = $page == -1 ? 'text:anchor-type="aschar"' : "text:anchor-type=\"page\" text:anchor-page-number=\"{$page}\" svg:x=\"{$offsetX}cm\" svg:y=\"{$offsetY}cm\"";
+    $anchor = $page == -1 ? 'text:anchor-type="as-char"' : "text:anchor-type=\"page\" text:anchor-page-number=\"{$page}\" svg:x=\"{$offsetX}cm\" svg:y=\"{$offsetY}cm\"";
     $xml = <<<IMG
 <draw:frame draw:style-name="fr1" draw:name="$filename" {$anchor} svg:width="{$width}cm" svg:height="{$height}cm" draw:z-index="3"><draw:image xlink:href="Pictures/$file" xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad"/></draw:frame>
 IMG;

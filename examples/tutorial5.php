@@ -48,7 +48,7 @@ $article = $odf->setSegment('articles');
 foreach($listeArticles AS $element) {
 	$article->titreArticle($element['titre']);
 	$article->texteArticle($element['texte']);
-	$article->setImage('image', $element['image'], -1);
+	$article->setImage('image', $element['image']);
 	$article->merge();
 }
 $odf->mergeSegment($article);
