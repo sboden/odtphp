@@ -99,13 +99,16 @@ composer install
 On Linux:
 ```bash
 # Go to the root of odtphp.
-vendor/bin/phpunit --configuration=phpunit.xml
+./run-tests.sh
 ```
 
 On Windows:
 ```bash
 # Go to the root of odtphp.
-php.exe vendor/bin/phpunit --configuration=phpunit.xml
+run-tests.bat
+
+# Note that depending on your PHP installation you may have to edit the
+# script to include the path to php.exe
 ```
 
 You can also run the PHPUnit tests e.g. in PHPStorm, but you have to exclude 
