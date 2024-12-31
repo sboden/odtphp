@@ -98,13 +98,13 @@ composer install
 
 On Linux:
 ```bash
-# Go to the root of odtphp.
+# Go to the root of odtphp, then:
 ./run-tests.sh
 ```
 
 On Windows:
 ```bash
-# Go to the root of odtphp.
+# Go to the root of odtphp, then:
 run-tests.bat
 
 # Note that depending on your PHP installation you may have to edit the
@@ -114,14 +114,6 @@ run-tests.bat
 You can also run the PHPUnit tests e.g. in PHPStorm, but you have to exclude 
 the vendor directory to avoid warnings about the PHPUnit framework itself.
 
-
-### Linting
-
-On Linux:
-```bash
-# Go to the root of odtphp.
-vendor/bin/phpcs --standard="Drupal,DrupalPractice" -n --extensions="php,module,inc,install,test,profile,theme" src
-```
 
 #### Test Structure
 
@@ -165,6 +157,16 @@ Each test is run twice:
 The tests generate ODT files and compare them with gold standard files located in:
 - `tests/src/files/gold_phpzip/` - Gold files for PHP Zip tests
 - `tests/src/files/gold_pclzip/` - Gold files for PclZip tests
+
+
+### Linting
+
+On Linux:
+```bash
+# Go to the root of odtphp, then:
+composer install
+vendor/bin/phpcs --standard="Drupal,DrupalPractice" -n --extensions="php,module,inc,install,test,profile,theme" src
+```
 
 
 ## Features
@@ -313,12 +315,12 @@ exists).
 
 As DXC Technology working for the Flemish government we started using 
 the `cybermonde/odtphp` fork ([source](https://github.com/cybermonde/odtphp)) 
-in a couple of projects, to fill in template ODT files with data and then 
-transforming the output ODT file to a PDF file. We ran into a couple of 
-problems with the `cybermonde/odtphp` library for which it was easier to just 
-create my own fork, hence `sboden/odtphp`: we sometimes generate 50,000 forms 
-daily, and `cybermonde/odtphp` would occasionally overwrite outputs because 
-of non-random random numbers.
+in a couple of projects to fill in template ODT files with data. 
+We ran into a couple of problems with the `cybermonde/odtphp` library for 
+which it was easier to just create my own fork, hence `sboden/odtphp`: we 
+sometimes generate 50,000 forms daily, and `cybermonde/odtphp` would 
+occasionally overwrite outputs when processing a lot of ODT files 
+simultaneously because of non-random random numbers.
 
 Why do I try to keep this "corpse" alive? Simply because I found no 
 replacement for it. The projects I work that use odtphp are now (= end 2024) on 
@@ -330,13 +332,18 @@ PHP version, and sboden/odtphp v3 is the result of that (after some extra
 manual human changes).
 
 While this fork `sboden/odtphp` is not officially supported, maintenance 
-and bug fixes are provided on a best-effort basis. The odtphp library is actively 
-used in production applications with planned lifecycles extending to 2030.
+and bug fixes are provided on a best-effort basis. The `sboden/odtphp` library 
+is actively used in production applications with planned lifecycles extending 
+to 2030.
 
-This software is **not** by DXC Technology, else it would have been called `dxc/odtphp`. 
-This software is **not** by the Flemish government, else it would probably have been 
-called `vo/odtphp`. I have always worked on odtphp during my personal time.
+This software is **not** by DXC Technology, else it would have been called 
+`dxc/odtphp`. This software is **not** by the Flemish government, else it 
+would probably have been called `vo/odtphp`. I have always worked on odtphp 
+during my personal time.
 
+### Version History
+- v3.0.3 - 29Dec2024: odtphp version for PHP 8.x 
+- v2.2.1 - 07Dec2022: Parallel processing by odtphp does not overwrite outputs.
 
 ### Disclaimer
 
