@@ -1,4 +1,3 @@
-
 # ODTPHP
 
 A PHP library for creating and manipulating ODT (OpenDocument Text) files.
@@ -68,6 +67,78 @@ $odt->setVars('invoice_number', $invoiceData['number']);
 // Save the completed invoice
 $odt->saveToDisk('invoice.odt');
 ```
+
+### Custom Properties
+
+You can set custom document properties in your ODT file using the `setCustomProperty()` method:
+
+```php
+$odf->setCustomProperty('Author', 'John Doe');
+$odf->setCustomProperty('Version', '1.0');
+```
+
+Important notes about custom properties:
+- It's recommended to use only strings for custom properties. The reason is that the value will be replaced by odtphp, 
+  but the value is supposed to be in the internal format as defined by odt for that particular type. Odtphp only 
+  replaces the value of the custom property, odtphp will not do data conversions.
+- For dates e.g., make sure to use YYYY-MM-DD as format as that is what ODT wants as internal date format.
+- Special characters will be HTML encoded by default.
+- Properties must exist in the document before they can be set.
+- Setting custom properties works when using LibreOffice/OpenOffice only. It seems to fail using Microsoft Word as 
+  Microsoft Word does not update the custom property values upon opening an ODT file.
+- Newlines are not supported in custom property values because the LibreOffice GUI does not allow newlines. 
+  setCustomProperty() will happily insert newlines and the newlines will also be outputted, but this 
+  "unofficial" functionality which may be blocked in the future by ODT.
+
+Examples:
+```php
+// Basic string properties
+$odf->setCustomProperty('Author', 'John Doe');
+$odf->setCustomProperty('Department', 'Engineering');
+
+// Dates should use YYYY-MM-DD format
+$odf->setCustomProperty('Creation Date', '2024-01-20');
+
+// Special characters are encoded by default
+$odf->setCustomProperty('Note', '<important> & urgent');  // Will be encoded
+$odf->setCustomProperty('Note', '<important> & urgent', FALSE);  // Won't be encoded
+```
+
+### Images
+
+You can insert images into your ODT file using different measurement units:
+
+```php
+// Using centimeters (original function)
+$odf->setImage('logo', 'path/to/logo.png', -1, 5, 7.5);  // 5cm width, 7.5cm height
+$odf->setImage('photo', 'path/to/photo.jpg', 1, 10, 15, 2, 2);  // On page 1 with 2cm offsets
+
+// Using millimeters
+$odf->setImageMm('logo', 'path/to/logo.png', -1, 50, 75);  // 50mm width, 75mm height
+$odf->setImageMm('photo', 'path/to/photo.jpg', 1, 100, 150, 20, 20);  // On page 1 with 20mm offsets
+
+// Using pixels (automatically converts to mm)
+$odf->setImagePixel('logo', 'path/to/logo.png', -1, 189, 283);  // 189px ≈ 5cm, 283px ≈ 7.5cm
+$odf->setImagePixel('photo', 'path/to/photo.jpg', 1, 378, 567, 76, 76);  // On page 1 with 76px offsets
+
+// Keep original image size
+$odf->setImage('icon1', 'path/to/icon.png');  // Will convert to cm
+$odf->setImageMm('icon2', 'path/to/icon.png');  // Will convert to mm
+$odf->setImagePixel('icon3', 'path/to/icon.png');  // Will keep original pixel dimensions
+```
+
+Parameters for all image functions:
+- `$key`: Name of the variable in the template
+- `$value`: Path to the image file
+- `$page`: Page number (-1 for as-char anchoring)
+- `$width`: Width in respective units (null to keep original)
+- `$height`: Height in respective units (null to keep original)
+- `$offsetX`: Horizontal offset (ignored if $page is -1)
+- `$offsetY`: Vertical offset (ignored if $page is -1)
+
+Note: While `setImagePixel` accepts measurements in pixels, the ODT format requires millimeters or 
+centimeters internally. The function automatically converts pixel measurements to the appropriate 
+format.
 
 ### Error Handling
 
@@ -147,10 +218,13 @@ The test suite covers various aspects of the ODT templating functionality:
    - Verify special character handling
    - Check multiline text substitution
 
+5. **Custom Property Test** (`SetCustomPropertyTest.php`):
+   - Test custom propertyfunctionality
+
 Each test is designed to ensure the robustness and reliability of the ODT 
 templating library across different use cases and configurations.
 
-Each test is run twice:
+A lot of tests run twice:
 - Once using PclZip library
 - Once using PHP's native Zip extension
 
@@ -249,11 +323,11 @@ limitation was that we needed about 50,000 PDFs per day for which we run
 parallel queues to the PDF converters. 
 
 
-### Technical tidbits
+### Technical informations
 
 #### Why do my variables sometimes not get filled in?
 
-Because LibreOffice adds metadata to what you change. E.g. when you have 
+Because LibreOffice adds metadata to text that you change. E.g. when you have 
 something as follows in your ODT file:
 
 ```
@@ -306,7 +380,6 @@ to v3.
 If you inherit from Odf or you use some internal things in the odtphp library,
 then all bets are off.
 
-
 ### History
 
 The odtphp project was initially started by Julien Pauli, Olivier Booklage, 
@@ -315,12 +388,13 @@ exists).
 
 As DXC Technology working for the Flemish government we started using 
 the `cybermonde/odtphp` fork ([source](https://github.com/cybermonde/odtphp)) 
-in a couple of projects to fill in template ODT files with data. 
+in a couple of projects to fill in template ODT files with data, then transforming
+the filled-in ODT to PDF using `gotenberg`.
 We ran into a couple of problems with the `cybermonde/odtphp` library for 
 which it was easier to just create my own fork, hence `sboden/odtphp`: we 
 sometimes generate 50,000 forms daily, and `cybermonde/odtphp` would 
 occasionally overwrite outputs when processing a lot of ODT files 
-simultaneously because of non-random random numbers.
+simultaneously (because of non-random random numbers).
 
 Why do I try to keep this "corpse" alive? Simply because I found no 
 replacement for it. The projects I work that use odtphp are now (= end 2024) on 
@@ -334,7 +408,7 @@ manual human changes).
 While this fork `sboden/odtphp` is not officially supported, maintenance 
 and bug fixes are provided on a best-effort basis. The `sboden/odtphp` library 
 is actively used in production applications with planned lifecycles extending 
-to 2030.
+to at least 2030.
 
 This software is **not** by DXC Technology, else it would have been called 
 `dxc/odtphp`. This software is **not** by the Flemish government, else it 
@@ -342,8 +416,9 @@ would probably have been called `vo/odtphp`. I have always worked on odtphp
 during my personal time.
 
 ### Version History
+- v3.1.0 - 21Mar2025: Introduction of functions setCustomProperty/setImageMm/setImagePixel 
 - v3.0.3 - 29Dec2024: odtphp version for PHP 8.x 
-- v2.2.1 - 07Dec2022: Parallel processing by odtphp does not overwrite outputs.
+- v2.2.1 - 07Dec2022: Parallel processing by odtphp does not overwrite outputs
 
 ### Disclaimer
 

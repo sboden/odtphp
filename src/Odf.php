@@ -63,6 +63,11 @@ class Odf {
   protected string $stylesXml = '';
 
   /**
+   * Content of the meta.xml file.
+   */
+  protected string $metaXml = '';
+
+  /**
    * Temporary file path.
    */
   protected string $tmpfile = '';
@@ -208,6 +213,7 @@ class Odf {
     $this->contentXml = '';
     $this->manifestXml = '';
     $this->stylesXml = '';
+    $this->metaXml = '';
     $this->tmpfile = '';
     $this->images = [];
     $this->vars = [];
@@ -278,6 +284,12 @@ class Odf {
     $this->stylesXml = $this->file->getFromName('styles.xml');
     if ($this->stylesXml === FALSE) {
       throw new OdfException("Error during styles.xml extraction");
+    }
+
+    // Extract meta.xml.
+    $this->metaXml = $this->file->getFromName('meta.xml');
+    if ($this->metaXml === FALSE) {
+      throw new OdfException("Error during meta.xml extraction");
     }
   }
 
@@ -392,13 +404,13 @@ class Odf {
    * @param int $page
    *   Page number to anchor the image to (-1 for as-char anchoring).
    * @param int|null $width
-   *   Width of the picture in pixels (null to keep original).
+   *   Width of the picture in cm (null to keep original).
    * @param int|null $height
-   *   Height of the picture in pixels (null to keep original).
+   *   Height of the picture in cm (null to keep original).
    * @param int|null $offsetX
-   *   Horizontal offset in pixels (ignored if $page is -1).
+   *   Horizontal offset in cm (ignored if $page is -1).
    * @param int|null $offsetY
-   *   Vertical offset in pixels (ignored if $page is -1).
+   *   Vertical offset in cm (ignored if $page is -1).
    *
    * @throws \Odtphp\Exceptions\OdfException
    *   When the image cannot be added or processed.
@@ -421,6 +433,124 @@ class Odf {
     $anchor = $page == -1 ? 'text:anchor-type="as-char"' : "text:anchor-type=\"page\" text:anchor-page-number=\"{$page}\" svg:x=\"{$offsetX}cm\" svg:y=\"{$offsetY}cm\"";
     $xml = <<<IMG
 <draw:frame draw:style-name="fr1" draw:name="$filename" {$anchor} svg:width="{$width}cm" svg:height="{$height}cm" draw:z-index="3"><draw:image xlink:href="Pictures/$file" xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad"/></draw:frame>
+IMG;
+
+    $this->images[$value] = $file;
+    $this->manifestVars[] = $file;
+    $this->setVars($key, $xml, FALSE);
+    return $this;
+  }
+
+  /**
+   * Assign a template variable as a picture using millimeter measurements.
+   *
+   * @param string $key
+   *   Name of the variable within the template.
+   * @param string $value
+   *   Path to the picture.
+   * @param int $page
+   *   Page number to anchor the image to (-1 for as-char anchoring)
+   * @param float|null $width
+   *   Width of the picture in millimeters (null to keep original)
+   * @param float|null $height
+   *   Height of the picture in millimeters (null to keep original)
+   * @param float $offsetX
+   *   Horizontal offset in millimeters (ignored if $page is -1)
+   * @param float $offsetY
+   *   Vertical offset in millimeters (ignored if $page is -1)
+   *
+   * @throws \Odtphp\Exceptions\OdfException
+   *
+   * @return Odf
+   *   The Odf document so you can chain functions.
+   */
+  public function setImageMm($key, $value, $page = -1, $width = NULL, $height = NULL, $offsetX = 0, $offsetY = 0): self {
+    $filename = strtok(strrchr($value, '/'), '/.');
+    $file = substr(strrchr($value, '/'), 1);
+    $size = @getimagesize($value);
+    if ($size === FALSE) {
+      throw new OdfException("Invalid image");
+    }
+
+    if (!$width && !$height) {
+      // Convert pixels to mm (1 inch = 25.4 mm, 1 inch = 96 pixels)
+      $mmPerPixel = 25.4 / 96;
+      $width = $size[0] * $mmPerPixel;
+      $height = $size[1] * $mmPerPixel;
+    }
+
+    // Format to 2 decimal places.
+    $width = number_format($width, 2, '.', '');
+    $height = number_format($height, 2, '.', '');
+    $offsetX = number_format($offsetX, 2, '.', '');
+    $offsetY = number_format($offsetY, 2, '.', '');
+
+    $anchor = $page == -1 ? 'text:anchor-type="as-char"' :
+        "text:anchor-type=\"page\" text:anchor-page-number=\"{$page}\" svg:x=\"{$offsetX}mm\" svg:y=\"{$offsetY}mm\"";
+
+    $xml = <<<IMG
+<draw:frame draw:style-name="fr1" draw:name="$filename" {$anchor} svg:width="{$width}mm" svg:height="{$height}mm" draw:z-index="3"><draw:image xlink:href="Pictures/$file" xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad"/></draw:frame>
+IMG;
+
+    $this->images[$value] = $file;
+    $this->manifestVars[] = $file;
+    $this->setVars($key, $xml, FALSE);
+    return $this;
+  }
+
+  /**
+   * Assign a template variable as a picture using pixel measurements.
+   *
+   * @param string $key
+   *   Name of the variable within the template.
+   * @param string $value
+   *   Path to the picture.
+   * @param int $page
+   *   Page number to anchor the image to (-1 for as-char anchoring)
+   * @param int|null $width
+   *   Width of the picture in pixels (null to keep original)
+   * @param int|null $height
+   *   Height of the picture in pixels (null to keep original)
+   * @param int $offsetX
+   *   Horizontal offset in pixels (ignored if $page is -1)
+   * @param int $offsetY
+   *   Vertical offset in pixels (ignored if $page is -1)
+   *
+   * @throws \Odtphp\Exceptions\OdfException
+   *
+   * @return Odf
+   *   The Odf document so you can chain functions.
+   */
+  public function setImagePixel($key, $value, $page = -1, $width = NULL, $height = NULL, $offsetX = 0, $offsetY = 0): self {
+    $filename = strtok(strrchr($value, '/'), '/.');
+    $file = substr(strrchr($value, '/'), 1);
+    $size = @getimagesize($value);
+    if ($size === FALSE) {
+      throw new OdfException("Invalid image");
+    }
+
+    if (!$width && !$height) {
+      [$width, $height] = $size;
+    }
+
+    // Convert pixels to mm (1 inch = 25.4 mm, 1 inch = 96 pixels)
+    $mmPerPixel = 25.4 / 96;
+    $widthMm = $width * $mmPerPixel;
+    $heightMm = $height * $mmPerPixel;
+    $offsetXMm = $offsetX * $mmPerPixel;
+    $offsetYMm = $offsetY * $mmPerPixel;
+
+    // Format to 2 decimal places.
+    $widthMm = number_format($widthMm, 2, '.', '');
+    $heightMm = number_format($heightMm, 2, '.', '');
+    $offsetXMm = number_format($offsetXMm, 2, '.', '');
+    $offsetYMm = number_format($offsetYMm, 2, '.', '');
+
+    $anchor = $page == -1 ? 'text:anchor-type="as-char"' :
+        "text:anchor-type=\"page\" text:anchor-page-number=\"{$page}\" svg:x=\"{$offsetXMm}mm\" svg:y=\"{$offsetYMm}mm\"";
+
+    $xml = <<<IMG
+<draw:frame draw:style-name="fr1" draw:name="$filename" {$anchor} svg:width="{$widthMm}mm" svg:height="{$heightMm}mm" draw:z-index="3"><draw:image xlink:href="Pictures/$file" xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad"/></draw:frame>
 IMG;
 
     $this->images[$value] = $file;
@@ -715,6 +845,80 @@ IMG;
     else {
       return htmlspecialchars($value);
     }
+  }
+
+  /**
+   * Function to set custom properties in the ODT file's meta.xml.
+   */
+  public function setCustomProperty($key, $value, $encode = TRUE, $charset = 'UTF-8'): self {
+    if (!is_string($key) || !is_string($value)) {
+      throw new OdfException('Key and value must be strings');
+    }
+
+    if ($encode) {
+      $value = htmlspecialchars($value, ENT_QUOTES | ENT_XML1, $charset);
+    }
+
+    // Convert to UTF-8 if not already.
+    if ($charset !== 'UTF-8') {
+      $value = mb_convert_encoding($value, 'UTF-8', $charset);
+    }
+
+    try {
+      // Create the pattern to match the existing custom property.
+      $pattern = '/<meta:user-defined\s+([^>]*?)meta:name="' . preg_quote($key, '/') . '"([^>]*?)>.*?<\/meta:user-defined>/';
+
+      // Check if property exists and update it.
+      if (preg_match($pattern, $this->metaXml, $matches)) {
+        // Preserve the existing attributes.
+        $attributes = $matches[1] . 'meta:name="' . $key . '"' . $matches[2];
+
+        // Create the replacement custom property with preserved attributes.
+        $replacement = '<meta:user-defined ' . $attributes . '>' . $value . '</meta:user-defined>';
+
+        // Replace the property.
+        $this->metaXml = preg_replace($pattern, $replacement, $this->metaXml);
+
+        // Open the temporary file and update meta.xml.
+        if ($this->file->open($this->tmpfile) !== TRUE) {
+          throw new OdfException('Error opening file');
+        }
+
+        if (!$this->file->addFromString('meta.xml', $this->metaXml)) {
+          throw new OdfException('Error updating meta.xml file');
+        }
+
+        $this->file->close();
+      }
+      else {
+        throw new OdfException("Custom property '$key' not found in meta.xml");
+      }
+
+      return $this;
+    }
+    catch (\ValueError $e) {
+      throw new OdfException('Error during metadata operation');
+    }
+  }
+
+  /**
+   * Get the ZIP file handler.
+   *
+   * @return \Odtphp\Zip\ZipInterface
+   *   The ZIP file handler.
+   */
+  public function getFile(): ZipInterface {
+    return $this->file;
+  }
+
+  /**
+   * Get the meta XML content.
+   *
+   * @return string
+   *   The meta XML content.
+   */
+  public function getMetaXml(): string {
+    return $this->metaXml;
   }
 
 }
