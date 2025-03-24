@@ -348,6 +348,50 @@ text (including the begin and end delimiters), copy it, and then use "Paste
 special/Paste unformatted text" to copy the text in the same place without any
 invisible metadata.
 
+#### Variables vs Custom Properties
+
+ODT files support two different ways to insert dynamic content: variables and custom properties.
+
+#### Variables
+Variables are an ODTPhp feature that works by replacing text anchors (like `{variable_name}`) with new content:
+```php
+$odf->setVars('company_name', 'ACME Corporation');
+$odf->setImage('logo', 'path/to/logo.png', -1, 50, 75);  // 50mm width, 75mm height
+```
+
+Key points about variables:
+- Variables are specific to ODTPhp, variables are not a feature of the ODT specification
+- Work as simple text replacements in the document
+- Support images through `setImage`, `setImageMm`, and `setImagePixel` functions
+- Can be affected by LibreOffice's invisible metadata when editing the template (see previous topic)
+- Must be surrounded by delimiters (default: `{` and `}`)
+- Can be used anywhere in the document text
+
+#### Custom Properties
+Custom properties are an official ODT feature for storing metadata about the document:
+```php
+$odf->setCustomProperty('Author', 'John Doe');
+$odf->setCustomProperty('Version', '1.0');
+```
+
+Key points about custom properties:
+- Official ODT feature supported by all ODT-compatible software
+- Stored in the document's meta.xml file
+- Not affected by LibreOffice's invisible metadata
+- Must exist in the document before they can be set
+- Cannot be used with image functions
+- Must be created through the LibreOffice GUI (File > Properties > Custom Properties)
+
+When to use which:
+- Use variables for:
+  * Any text content in the document body
+  * Images and other media
+  * Dynamic content that needs formatting
+  * Repeatable segments
+
+- Use custom properties for:
+  * Small single line text fields: name, address line 1, address line2, postal code, city, ...
+
 
 #### Why does "Catégorie 1" sometimes appear as "CatÃ©gorie 1" in the output?
 
@@ -361,12 +405,11 @@ While setting variables you can specify the encoding as needed, e.g. as:
 $categorie->setVars('TitreCategorie', 'Catégorie 1', true, 'UTF-8');
 ```
 
-
 #### The default charset has changed?
 
 One of the "major" changes I made is to put UTF-8 as the default charset when 
 setting variables. Before the default was ISO-8859-1, but UTF-8 currently 
-makes sense to me.
+makes more sense to me.
 
 I always recommend using UTF-8 internally within the application and 
 handling encoding/decoding at the boundaries.
@@ -416,8 +459,9 @@ would probably have been called `vo/odtphp`. I have always worked on odtphp
 during my personal time.
 
 ### Version History
-- v3.1.0 - 21Mar2025: Introduction of functions setCustomProperty/setImageMm/setImagePixel 
-- v3.0.3 - 29Dec2024: odtphp version for PHP 8.x 
+- v3.2.0 - 24Mar2025: Introduction of customPropertyExists()
+- v3.1.0 - 21Mar2025: Introduction of functions setCustomProperty()/setImageMm()/setImagePixel()
+- v3.0.3 - 29Dec2024: Odtphp version for PHP 8.x 
 - v2.2.1 - 07Dec2022: Parallel processing by odtphp does not overwrite outputs
 
 ### Disclaimer
