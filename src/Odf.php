@@ -849,6 +849,15 @@ IMG;
 
   /**
    * Function to set custom properties in the ODT file's meta.xml.
+   *
+   * @param string $key
+   *   Name of the variable within the template.
+   * @param string $value
+   *   Replacement value for the variable.
+   * @param bool $encode
+   *   Whether to encode special XML characters for safe XML output.
+   * @param string $charset
+   *   Character set encoding of the input value (defaults to UTF-8).
    */
   public function setCustomProperty($key, $value, $encode = TRUE, $charset = 'UTF-8'): self {
     if (!is_string($key) || !is_string($value)) {
@@ -919,6 +928,24 @@ IMG;
    */
   public function getMetaXml(): string {
     return $this->metaXml;
+  }
+
+  /**
+   * Check if a custom property exists in the ODT file.
+   *
+   * @param string $key The name of the custom property to check
+   * @return bool TRUE if the property exists, FALSE otherwise
+   */
+  public function customPropertyExists(string $key): bool
+  {
+      // HTML encode the key for XML comparison
+      $encodedKey = htmlspecialchars($key, ENT_QUOTES | ENT_XML1);
+      
+      // Pattern to match custom property with the given name
+      $pattern = '/<meta:user-defined\s+([^>]*?)meta:name="' . preg_quote($encodedKey, '/') . '"([^>]*?)>/';
+      
+      // Check if the pattern exists in metaXml
+      return (bool) preg_match($pattern, $this->metaXml);
   }
 
 }
