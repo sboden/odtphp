@@ -843,7 +843,7 @@ IMG;
       return array_map([$this, 'recursiveHtmlspecialchars'], $value);
     }
     else {
-      return htmlspecialchars($value);
+      return htmlspecialchars((string) ($value ?? ''));
     }
   }
 
