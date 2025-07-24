@@ -458,7 +458,13 @@ This software is **not** by DXC Technology, else it would have been called
 would probably have been called `vo/odtphp`. I have always worked on odtphp 
 during my personal time.
 
+### Upgrade plan
+- From v3.0.3 upto v3.2.1:
+    There should be no issues in upgrading sboden/odtphp, only new functionality 
+    and some small bugfixes were done.
+
 ### Version History
+- v3.2.1 - 24Jul2025: Small edge case fix in Odf::recursiveHtmlspecialchars()
 - v3.2.0 - 24Mar2025: Introduction of customPropertyExists()
 - v3.1.0 - 21Mar2025: Introduction of functions setCustomProperty()/setImageMm()/setImagePixel()
 - v3.0.3 - 29Dec2024: Odtphp version for PHP 8.x 
