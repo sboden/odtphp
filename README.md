@@ -368,7 +368,7 @@ Key points about variables:
 - Can be used anywhere in the document text
 
 #### Custom Properties
-Custom properties are an official ODT feature for storing metadata about the document:
+Custom properties are an official ODT feature for storing (usually) metadata about the document:
 ```php
 $odf->setCustomProperty('Author', 'John Doe');
 $odf->setCustomProperty('Version', '1.0');
